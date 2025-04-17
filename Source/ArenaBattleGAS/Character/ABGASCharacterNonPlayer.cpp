@@ -10,6 +10,8 @@ AABGASCharacterNonPlayer::AABGASCharacterNonPlayer()
 	// NPC는 ASC를 직접 생성
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<UABCharacterAttributeSet>(TEXT("AttributeSet"));
+
+	Level = 1;
 }
 
 UAbilitySystemComponent* AABGASCharacterNonPlayer::GetAbilitySystemComponent() const
@@ -23,4 +25,13 @@ void AABGASCharacterNonPlayer::PossessedBy(AController* NewController)
 
 	// NPC는 Owner와 Avatar를 자기 자신으로 설정
 	ASC->InitAbilityActorInfo(this, this);
+
+	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(this);
+	FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, Level, EffectContextHandle);
+	if (EffectSpecHandle.IsValid())
+	{
+		// 게임플레이 이펙트를 자기 자신에게 적용하여 NPC의 스탯 초기화
+		ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+	}
 }
