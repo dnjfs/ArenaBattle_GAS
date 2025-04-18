@@ -8,6 +8,7 @@
 #include "UI/ABGASWidgetComponent.h"
 #include "UI/ABGASUserWidget.h"
 #include "Attribute/ABCharacterAttributeSet.h"
+#include "Tag/ABGameplayTag.h"
 
 AABGASCharacterPlayer::AABGASCharacterPlayer()
 {
@@ -31,6 +32,15 @@ AABGASCharacterPlayer::AABGASCharacterPlayer()
 		HpBar->SetDrawSize(FVector2D(200.0f, 20.f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blunt/Blunt_Hellhammer/SK_Blunt_HellHammer.SK_Blunt_HellHammer'"));
+	if (WeaponMeshRef.Object)
+	{
+		WeaponMesh = WeaponMeshRef.Object;
+	}
+
+	WeaponRange = 75.f;
+	WeaponAttackRate = 100.0f;
 }
 
 UAbilitySystemComponent* AABGASCharacterPlayer::GetAbilitySystemComponent() const
@@ -54,6 +64,11 @@ void AABGASCharacterPlayer::PossessedBy(AController* NewController)
 			// mutable로 지정하여 델리게이트 바인딩 가능
 			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::OnOutOfHealth);
 		}
+		
+		// 이벤트를 수신하겠다는 델리게이트를 미리 등록해야함
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ABTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AABGASCharacterPlayer::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(ABTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AABGASCharacterPlayer::UnequipWeapon);
+
 
 		for (const auto& StartAbility : StartAbilities)
 		{
@@ -129,4 +144,33 @@ void AABGASCharacterPlayer::GASInputReleased(int32 InputId)
 void AABGASCharacterPlayer::OnOutOfHealth()
 {
 	SetDead();
+}
+
+void AABGASCharacterPlayer::EquipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		Weapon->SetSkeletalMesh(WeaponMesh);
+
+		// 수동으로 어트리뷰트 값을 조정, GE를 통해 수정하는 방법이 더 바람직함
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange + WeaponRange);
+		ASC->SetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate + WeaponAttackRate);
+	}
+}
+
+void AABGASCharacterPlayer::UnequipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
+		ASC->SetNumericAttributeBase(UABCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
+
+		Weapon->SetSkeletalMesh(nullptr);
+	}
 }
