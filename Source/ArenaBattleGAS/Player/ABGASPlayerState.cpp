@@ -4,12 +4,14 @@
 #include "Player/ABGASPlayerState.h"
 #include "AbilitySystemComponent.h"
 #include "Attribute/ABCharacterAttributeSet.h"
+#include "Attribute/ABCharacterSkillAttributeSet.h"
 
 AABGASPlayerState::AABGASPlayerState()
 {
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
 	//ASC->SetIsReplicated(true); // 네트워크 멀티플레이 구현 시 리플리케이션 활성화
 	AttributeSet = CreateDefaultSubobject<UABCharacterAttributeSet>(TEXT("AttributeSet"));
+	SkillAttributeSet = CreateDefaultSubobject<UABCharacterSkillAttributeSet>(TEXT("SkillAttributeSet"));
 }
 
 UAbilitySystemComponent* AABGASPlayerState::GetAbilitySystemComponent() const

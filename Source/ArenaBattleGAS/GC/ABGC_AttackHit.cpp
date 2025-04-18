@@ -22,6 +22,17 @@ bool UABGC_AttackHit::OnExecute_Implementation(AActor* Target, const FGameplayCu
 		// 이펙트 발동
 		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, HitResult->ImpactPoint, FRotator::ZeroRotator, true);
 	}
+	else
+	{
+		// GA_AttackHitCheck에서 AddActors()로 받은 정보
+		for (const auto& TargetActor : Parameters.EffectContext.Get()->GetActors())
+		{
+			if (TargetActor.Get())
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, TargetActor.Get()->GetActorLocation(), FRotator::ZeroRotator, true);
+			}
+		}
+	}
 
 	return false;
 }
