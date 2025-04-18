@@ -69,7 +69,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
 
 	bool bOutOfHealth = false;

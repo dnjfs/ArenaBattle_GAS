@@ -6,7 +6,7 @@
 
 UAnimNotify_GASAttackHitCheck::UAnimNotify_GASAttackHitCheck()
 {
-	ComboAttackLevel = 1.0;
+	ComboAttackLevel = 1.0f;
 }
 
 FString UAnimNotify_GASAttackHitCheck::GetNotifyName_Implementation() const

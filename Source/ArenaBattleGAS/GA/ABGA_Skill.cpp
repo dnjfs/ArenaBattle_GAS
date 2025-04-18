@@ -15,6 +15,13 @@ void UABGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	// 5.4 버전부터 비용과 쿨다운이 정상 동작되기 위해 필요한 함수
+	// GameplayAbility.h 코드 주석을 보면 ActivateAbility() 함수에서 반드시 불려야 한다고 쓰여있음
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+		return;
+	}
 
 	AABGASCharacterPlayer* TargetCharacter = Cast<AABGASCharacterPlayer>(ActorInfo->AvatarActor.Get());
 	if (!TargetCharacter)

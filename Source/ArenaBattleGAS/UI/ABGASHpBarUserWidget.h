@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/ABGASUserWidget.h"
+#include "GameplayEffectTypes.h"
 #include "ABGASHpBarUserWidget.generated.h"
 
 /**
